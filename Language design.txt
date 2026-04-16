@@ -1,0 +1,94 @@
+void main() // <- starting point of the program
+{
+	number a=10; // stores all types of integer number i.e. int or long
+	decimal b=1.5; // stores all types of float values i.e. float or double
+	decimal p=2;
+	
+	truth x=false;
+	truth y=true;
+	
+	number[] x=new number[19];
+	number[] x={1,2,3};
+	number[] x=new number[]{1,2,3};
+	
+	// similarly for decimal and string arrays
+	
+	write("my name is vishal");
+	write(f"my age is {a}");
+	
+	string s="vivek";
+	string s1="1,2,{x}";
+	string s2=f"1,2,{x}";
+	
+	writeline("hello");
+	writeline(f"hello {s}");
+	
+	string s=read("enter a number"); // reads next string token
+	
+	number x=read("enter a number"); // reads next number token
+	
+	string sl=readline("enter a text"); //  read the full line
+	
+	for(number i from(1 to 10 step 1))
+	{
+		write(i);
+	}
+	
+	for(decimal x from(1 to 20 step 0.5 ))
+	{
+		writeline(x)
+	}
+	
+	
+	// mathematical operations
+	
+	number x = 1 + 2;
+	number y = 1 + 2.2; // error y is not a fraction
+	decimal a = 1.2 + 2; // ok a=3.2
+	
+	number b = 1/0; // error
+	number c = 1/2; // b=0
+	decimal g = 3/2 // g=1
+	
+	// and so on for other operations
+	
+	// if - else
+		
+	if( x > 1 ) // if(truth)
+	{
+		write("helllo");
+	}
+	
+	// if structure is same as java
+	if(x>2)
+	{
+		writeline("vivek");
+	}
+	else if(x>1)
+	{
+		write(read());
+	}
+	else
+	{
+		string s = read("hello");
+		write(s);
+	}
+	
+	
+	hellofunction("hello");
+	decimal ans=hfun2(1,1.2);
+	write(ans);
+}
+
+
+void hellofunction(string s)
+{
+	write(s);
+	number x;
+	write(x);
+}
+
+decimal hfun2(number x, decimal y)
+{
+	return x+y;
+}

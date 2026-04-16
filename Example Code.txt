@@ -1,0 +1,105 @@
+/*
+  Main Program: Array & Prime Analyzer
+  Demonstrates I/O, loops, arrays, mathematical logic, and functions.
+*/
+void main()
+{
+    writeline("=== Array & Prime Analyzer ===");
+    
+    number n = read("Enter the size of the array: ");
+    
+    // 1. Logical Operators (||, <=)
+    if (n <= 0 || n > 100) 
+    {
+        writeline("Invalid size! Defaulting to 5.");
+        n = 5;
+    }
+
+    // 2. Array Initialization
+    number[] arr = new number[n];
+    
+    writeline("Let's fill the array. Enter -1 to stop early.");
+    number count = 0;
+    
+    // 3. Indefinite Iteration & Array Length
+    while (count < arr.length) 
+    {
+        number val = read(f"Enter element {count}: ");
+        
+        // 4. Equality Operator (==) and Loop Exit (break)
+        if (val == -1) 
+        {
+            writeline("Stopping input early.");
+            break;
+        }
+        
+        // 5. Array Assignment
+        arr[count] = val;
+        count = count + 1;
+    }
+
+    number primeCount = 0;
+    decimal sum = 0.0;
+
+    // 6. Definite Iteration
+    for (number i from(0 to count - 1 step 1)) 
+    {
+        // 7. Array Access
+        number current = arr[i]; 
+        
+        // 8. Loop Skipping (continue)
+        if (current <= 0) 
+        {
+            continue; // Skip zero and negative numbers
+        }
+
+        sum = sum + to_decimal(current); // 9. Explicit Type Casting
+
+        truth isP = checkPrime(current);
+        
+        // 10. Logical AND (&&) and Not Equal (!=)
+        if (isP == true && current != 1) 
+        {
+            primeCount = primeCount + 1;
+            writeline(f"{current} is a prime number!");
+        }
+    }
+
+    // 11. Modulo Operator (%)
+    number remainder = count % 2;
+    decimal average = sum / to_decimal(count); 
+
+    writeline(f"\nTotal Primes Found: {primeCount}");
+    writeline(f"Average of elements: {average}");
+    
+    if (remainder == 0) 
+    {
+        writeline("You processed an even number of elements.");
+    }
+    else 
+    {
+        writeline("You processed an odd number of elements.");
+    }
+}
+
+/* Helper function to check for prime numbers.
+   Returns a truth value.
+*/
+truth checkPrime(number x)
+{
+    if (x < 2) 
+    {
+        return false;
+    }
+    
+    for (number i from(2 to x - 1 step 1)) 
+    {
+        // Using modulo to check for clean division
+        if (x % i == 0) 
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
