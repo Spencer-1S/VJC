@@ -5,18 +5,21 @@ VJC is a source-to-source compiler (transpiler) for a small, statically-typed, p
 ## Repository contents
 
 Core sources:
-- [ast.h](ast.h): AST node definitions and function prototypes.
-- [lexer.l](lexer.l): Flex lexer (tokens, strings, numbers, identifiers, comments).
-- [parser.y](parser.y): Bison grammar with operator precedence and `%nonassoc` handling for the dangling-`else` ambiguity; builds the AST.
-- [transpiler.c](transpiler.c): AST allocation + Java code generator (depth-first AST walk).
+- [Compiler/ast.h](Compiler/ast.h): AST node definitions and function prototypes.
+- [Compiler/lexer.l](Compiler/lexer.l): Flex lexer (tokens, strings, numbers, identifiers, comments).
+- [Compiler/parser.y](Compiler/parser.y): Bison grammar with operator precedence and `%nonassoc` handling for the dangling-`else` ambiguity; builds the AST.
+- [Compiler/transpiler.c](Compiler/transpiler.c): AST allocation + Java code generator (depth-first AST walk).
 
 Generated/intermediate files (created by Flex/Bison):
-- [lex.yy.c](lex.yy.c)
-- [y.tab.c](y.tab.c)
-- [y.tab.h](y.tab.h)
+- [Compiler/lex.yy.c](Compiler/lex.yy.c)
+- [Compiler/y.tab.c](Compiler/y.tab.c)
+- [Compiler/y.tab.h](Compiler/y.tab.h)
 
-Example input program:
-- [program.vjc](program.vjc)
+Example programs:
+- [Example Programs/HelloWorld.vjc](Example%20Programs/HelloWorld.vjc)
+- [Example Programs/Add.vjc](Example%20Programs/Add.vjc)
+- [Example Programs/bubblesort.vjc](Example%20Programs/bubblesort.vjc)
+- [Example Programs/PrimeNumbers.vjc](Example%20Programs/PrimeNumbers.vjc)
 
 ## Language features (VJC → Java)
 
@@ -92,7 +95,13 @@ becomes:
 System.out.println(("Enter element " + (count) + ": "));
 ```
 
-## Build and run (Windows)
+## Build and run
+
+This repo supports building a Windows executable transpiler and a Linux executable transpiler.
+
+Executables are kept in:
+- Windows: [Compiler/Executable Compiler (Windows)/transpiler.exe](Compiler/Executable%20Compiler%20(Windows)/transpiler.exe)
+- Linux: [Compiler/Executable Compiler (Linux)/transpiler](Compiler/Executable%20Compiler%20(Linux)/)
 
 ### Prerequisites
 You need:
@@ -100,33 +109,70 @@ You need:
 - Flex and Bison (either via MSYS2 or a Windows Flex/Bison distribution)
 - A JDK for compiling/running the generated Java (`javac`, `java`)
 
-### Build the transpiler
-From `E:\Compiler Design\VJC`:
+### Build the transpiler (Windows executable)
+From `E:\Compiler Design\VJC` in PowerShell:
 
 1) Regenerate the lexer/parser C files (requires `flex` and `bison` on PATH):
 
 ```powershell
+Set-Location -Path "E:\Compiler Design\VJC\Compiler"
 bison -d -y parser.y
 flex lexer.l
 ```
 
-2) Compile everything into `transpiler.exe`:
+2) Compile everything into the Windows executable (written into the Windows output folder):
 
 ```powershell
-gcc -o transpiler.exe transpiler.c y.tab.c lex.yy.c
+gcc -O2 -Wall -o ".\Executable Compiler (Windows)\transpiler.exe" transpiler.c y.tab.c lex.yy.c
 ```
 
 If your Flex distribution requires it, add `-lfl`:
 
 ```powershell
-gcc -o transpiler.exe transpiler.c y.tab.c lex.yy.c -lfl
+gcc -O2 -Wall -o ".\Executable Compiler (Windows)\transpiler.exe" transpiler.c y.tab.c lex.yy.c -lfl
+```
+
+### Build the transpiler (Linux executable)
+
+Option 1: Native Linux
+
+```bash
+cd "./Compiler"
+bison -d -y parser.y
+flex -o lex.yy.c lexer.l
+
+gcc -O2 -Wall -o "./Executable Compiler (Linux)/transpiler" transpiler.c y.tab.c lex.yy.c
+
+# If your distro needs libfl:
+gcc -O2 -Wall -o "./Executable Compiler (Linux)/transpiler" transpiler.c y.tab.c lex.yy.c -lfl
+```
+
+Option 2: Build the Linux executable from Windows using WSL
+
+This writes an ELF binary into your Windows drive via `/mnt/...`.
+
+```powershell
+wsl bash -lc 'cd "/mnt/e/Compiler Design/VJC/Compiler" && bison -d -y parser.y && flex -o lex.yy.c lexer.l && gcc -O2 -Wall -o "/mnt/e/Compiler Design/VJC/Compiler/Executable Compiler (Linux)/transpiler" transpiler.c y.tab.c lex.yy.c'
+```
+
+To verify the Linux binary format in WSL:
+
+```powershell
+wsl file "/mnt/e/Compiler Design/VJC/Compiler/Executable Compiler (Linux)/transpiler"
 ```
 
 ### Use the transpiler
 Transpile a VJC program to Java:
 
 ```powershell
-.\transpiler.exe program.vjc Main.java
+Set-Location -Path "E:\Compiler Design\VJC"
+".\Compiler\Executable Compiler (Windows)\transpiler.exe" "Example Programs\bubblesort.vjc" Main.java
+```
+
+On Linux:
+
+```bash
+./Compiler/Executable\ Compiler\ \(Linux\)/transpiler "Example Programs/bubblesort.vjc" Main.java
 ```
 
 ### Compile and run the generated Java
@@ -139,3 +185,6 @@ java Main
 ## Notes
 - The parser uses `%nonassoc IFX` / `%nonassoc ELSE` to resolve the dangling-`else` ambiguity.
 - The Java output includes `Scanner` input helpers and generates a single `Main` class.
+
+## Author / Developer
+Vishal Anand (Spencer1s)
