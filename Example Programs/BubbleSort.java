@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Main {
+public class BubbleSort {
     private static final Scanner scanner = new Scanner(System.in);
 
     private static int readInt(String prompt) {

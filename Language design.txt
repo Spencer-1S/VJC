@@ -1,94 +1,280 @@
-void main() // <- starting point of the program
-{
-	number a=10; // stores all types of integer number i.e. int or long
-	decimal b=1.5; // stores all types of float values i.e. float or double
-	decimal p=2;
-	
-	truth x=false;
-	truth y=true;
-	
-	number[] x=new number[19];
-	number[] x={1,2,3};
-	number[] x=new number[]{1,2,3};
-	
-	// similarly for decimal and string arrays
-	
-	write("my name is vishal");
-	write(f"my age is {a}");
-	
-	string s="vivek";
-	string s1="1,2,{x}";
-	string s2=f"1,2,{x}";
-	
-	writeline("hello");
-	writeline(f"hello {s}");
-	
-	string s=read("enter a number"); // reads next string token
-	
-	number x=read("enter a number"); // reads next number token
-	
-	string sl=readline("enter a text"); //  read the full line
-	
-	for(number i from(1 to 10 step 1))
-	{
-		write(i);
-	}
-	
-	for(decimal x from(1 to 20 step 0.5 ))
-	{
-		writeline(x)
-	}
-	
-	
-	// mathematical operations
-	
-	number x = 1 + 2;
-	number y = 1 + 2.2; // error y is not a fraction
-	decimal a = 1.2 + 2; // ok a=3.2
-	
-	number b = 1/0; // error
-	number c = 1/2; // b=0
-	decimal g = 3/2 // g=1
-	
-	// and so on for other operations
-	
-	// if - else
-		
-	if( x > 1 ) // if(truth)
-	{
-		write("helllo");
-	}
-	
-	// if structure is same as java
-	if(x>2)
-	{
-		writeline("vivek");
-	}
-	else if(x>1)
-	{
-		write(read());
-	}
-	else
-	{
-		string s = read("hello");
-		write(s);
-	}
-	
-	
-	hellofunction("hello");
-	decimal ans=hfun2(1,1.2);
-	write(ans);
-}
+VJC Language Design (Specification) by Spencer1s
 
 
-void hellofunction(string s)
-{
-	write(s);
+VJC is a small, statically-typed, procedure-oriented language designed to be transpiled to Java.
+Inspired from Java & Python
+
+This document describes the language *as implemented* by:
+- Compiler/lexer.l (Flex)
+- Compiler/parser.y (Bison)
+- Compiler/transpiler.c (AST + Java code generator)
+
+
+1) Program Structure
+--------------------
+1. A VJC program is a list of function declarations.
+2. The entry point must be:
+
+	void main() { ... }
+
+3. There are no global variables in the current grammar; all variables are local to blocks/functions.
+
+
+2) Lexical Rules (Tokens)
+-------------------------
+Whitespace:
+- Spaces/tabs are ignored.
+- Newlines increment the line counter for error messages.
+
+Comments:
+- Single-line: // ... (to end of line)
+- Multi-line:  /* ... */ (can span lines)
+
+Identifiers:
+- Pattern: [a-zA-Z_][a-zA-Z0-9_]*
+- Note: keywords are reserved and cannot be used as identifiers.
+
+Literals:
+- number literal:   123
+- decimal literal:  12.34
+- truth literal:    true | false
+- string literal:   "..."  (no newline inside)
+- f-string literal: f"...{...}..." (explained below)
+
+
+3) Types
+--------
+Built-in types:
+- number   (transpiles to Java int)
+- decimal  (transpiles to Java double)
+- truth    (transpiles to Java boolean)
+- string   (transpiles to Java String)
+- void     (functions only)
+
+Notes:
+- The language is intended to be statically typed, but the current compiler does not implement a full type checker.
+- Some type errors that would be rejected in a real compiler may still transpile and then fail in Java, or behave differently.
+
+
+4) Variables and Declarations
+-----------------------------
+Variable declaration forms:
+
+1) Without initializer:
 	number x;
-	write(x);
+	decimal y;
+	truth ok;
+	string name;
+
+2) With initializer:
+	number x = 10;
+	decimal y = 2.5;
+	truth ok = true;
+	string s = "hello";
+
+Important implementation detail (read coercion):
+- If the initializer is read("...") inside a declaration, the compiler rewrites it to a typed read:
+  - number   n = read("...");    => readInt("...") in Java
+  - decimal  d = read("...");    => readDouble("...") in Java
+  - truth    b = read("...");    => readBool("...") in Java
+  - string   s = readline("...");=> readLine("...") in Java
+
+Limitation:
+- If you assign read("...") later (not inside the declaration), it currently defaults to integer input.
+
+
+5) Arrays
+---------
+Array element types supported:
+- number[]
+- decimal[]
+- truth[]
+- string[]
+
+Array declaration forms (as implemented):
+
+1) Allocation with size:
+	number[] a = new number[n];
+
+2) Literal initializer list:
+	number[] a = { 1, 2, 3 };
+
+Indexing:
+	a[i]
+
+Assignment:
+	a[i] = expr;
+
+Length:
+	a.length
+
+Notes / limitations:
+- The grammar does NOT support: new number[]{1,2,3};
+  Use: number[] a = {1, 2, 3};
+
+
+6) Expressions and Operators
+----------------------------
+Expressions include:
+- literals: 123, 1.5, true, "text", f"..."
+- identifiers: x
+- array access: a[i]
+- function call: foo(x, y)
+- casts: to_number(expr), to_decimal(expr)
+- reads: read(promptExpr), readline(promptExpr)
+- grouping: (expr)
+
+Arithmetic operators:
+- +  -  *  /  %
+
+Relational operators:
+- ==  !=  <  >  <=  >=
+
+Logical operators:
+- &&  ||  !
+
+Precedence (high to low, as implemented):
+1) unary: !, unary-
+2) *, /, %
+3) +, -
+4) <, >, <=, >=
+5) ==, !=
+6) &&
+7) ||
+
+Notes:
+- There is no full type checker yet; mixed-type expressions may produce Java compilation errors or implicit Java behavior.
+- Division by zero is not checked by the compiler; it is a runtime behavior in Java.
+
+
+7) Statements
+-------------
+Supported statements:
+
+1) Variable declaration:
+	number x;
+	number x = expr;
+
+2) Array declaration:
+	number[] a = new number[n];
+	number[] a = {1, 2, 3};
+
+3) Assignment:
+	x = expr;
+	a[i] = expr;
+
+4) I/O:
+	write(expr);
+	writeline(expr);
+
+5) If / else:
+	if (expr) { ... }
+	if (expr) { ... } else { ... }
+	else-if chains are supported.
+
+6) While:
+	while (expr) { ... }
+
+7) For:
+	for (number i from(START to END step STEP)) { ... }
+	step is optional; if omitted, it defaults to 1.
+
+	IMPORTANT: In Java output, the loop condition is generated as:
+	i <= END
+	so END is inclusive.
+
+	Limitation:
+	- The generator always prints i <= END and i += STEP.
+	  Negative STEP (counting down) is not safely supported without changing codegen.
+
+8) Flow control:
+	break;
+	continue;
+	return;
+	return expr;
+
+9) Function call as a statement:
+	foo(x, y);
+
+
+8) Functions
+------------
+Function declaration forms:
+
+1) Non-void:
+	number add(number a, number b) {
+		 return a + b;
+	}
+
+2) Void:
+	void greet(string name) {
+		 writeline(name);
+		 return;
+	}
+
+Parameter list:
+- Parameters are typed and are written like: number x, decimal y
+- Parameters are represented in the AST as declaration nodes.
+
+
+9) Input / Output
+-----------------
+Print:
+- write(expr)     => System.out.print(expr)
+- writeline(expr) => System.out.println(expr)
+
+Read:
+- read(promptExpr)
+- readline(promptExpr)
+
+Implementation notes:
+- promptExpr can be a string literal, an f-string expression, or any expression that becomes a Java string.
+- In generated Java, helper methods are emitted (Scanner-based): readInt, readDouble, readBool, readLine.
+
+
+10) f-strings
+-------------
+Syntax:
+	f"Hello {name}"
+
+Transpilation strategy:
+- The compiler converts it to Java string concatenation.
+
+Important limitation (implementation detail):
+- Content inside { ... } is NOT parsed as a VJC expression.
+  It is injected directly into the generated Java output.
+
+Safe usage:
+- Use simple identifiers or Java-compatible expressions inside { }.
+- Avoid VJC-only syntax (like to_number(...)) inside { }.
+
+
+11) Minimal Examples
+-------------------
+
+Example A: Hello World
+
+void main() {
+	 writeline("Hello");
 }
 
-decimal hfun2(number x, decimal y)
-{
-	return x+y;
+Example B: Read numbers and sum
+
+void main() {
+	 number a = read("Enter a: ");
+	 number b = read("Enter b: ");
+	 number s = a + b;
+	 writeline(f"Sum = {s}");
+}
+
+Example C: Arrays + loops
+
+void main() {
+	 number n = read("n: ");
+	 number[] a = new number[n];
+	 for(number i from(0 to n - 1)) {
+		  number v = read(f"a[{i}] = ");
+		  a[i] = v;
+	 }
+	 writeline("done");
 }

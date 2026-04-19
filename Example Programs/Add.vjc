@@ -1,0 +1,6 @@
+void main()
+{
+    number x=10;
+    number y=20;
+    write(f"Sum = {x+y}");
+}
