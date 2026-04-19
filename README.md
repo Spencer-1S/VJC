@@ -2,6 +2,42 @@
 
 VJC is a source-to-source compiler (transpiler) for a small, statically-typed, procedure-oriented custom language. It parses VJC input using a Flex lexer and a Bison parser, builds an Abstract Syntax Tree (AST), and generates formatted, executable Java code (a `public class Main` with `public static void main`).
 
+## Quick start (compile a .vjc program)
+
+The transpiler generates a Java file named `Main.java` (class name is always `Main`).
+
+### Windows (PowerShell)
+
+If you are not already in the compiler folder:
+
+```powershell
+Set-Location -Path "E:\Compiler Design\VJC\Compiler\Executable Compiler (Windows)"
+```
+
+Transpile → compile Java → run:
+
+```powershell
+.\transpiler.exe "..\..\Example Programs\bubblesort.vjc" Main.java
+javac Main.java
+java Main
+```
+
+### Linux (bash)
+
+If you are not already in the compiler folder:
+
+```bash
+cd "./Compiler/Executable Compiler (Linux)"
+```
+
+Transpile → compile Java → run:
+
+```bash
+./transpiler "../../Example Programs/bubblesort.vjc" Main.java
+javac Main.java
+java Main
+```
+
 ## Repository contents
 
 Core sources:
