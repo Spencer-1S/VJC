@@ -224,3 +224,7 @@ java Main
 
 ## Author / Developer
 Vishal Anand (Spencer1s)
+
+## License
+Copyright (c) 2026 Vishal Anand (Spencer-1S) <br>
+All rights reserved.
